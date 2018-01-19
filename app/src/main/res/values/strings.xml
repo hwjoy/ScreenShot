@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">ScreenShot</string>
+
+    <string name="main_activity_prompt">This app needs the permission of draw over other apps. </string>
 </resources>
