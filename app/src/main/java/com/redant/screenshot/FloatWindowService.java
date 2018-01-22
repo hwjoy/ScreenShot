@@ -1,6 +1,8 @@
 package com.redant.screenshot;
 
 import android.app.Service;
+import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
@@ -73,13 +75,13 @@ public class FloatWindowService extends Service {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                performHome();
             }
         });
         button.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-
+                performLock();
                 return true;
             }
         });
@@ -176,6 +178,26 @@ public class FloatWindowService extends Service {
         windowManager.addView(button, layoutParams);
 
         return button;
+    }
+
+    private void performHome() {
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        startActivity(intent);
+    }
+
+    private void performLock() {
+        DevicePolicyManager devicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
+        ComponentName admin = new ComponentName(this, LockScreenReceiver.class);
+        if (devicePolicyManager != null && devicePolicyManager.isAdminActive(admin)) {
+            devicePolicyManager.lockNow();
+        } else {
+            Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
+            intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, admin);
+            intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "Lock Screen");
+            startActivity(intent);
+        }
     }
 
     private int getStatusBarHeight(Context context) {
