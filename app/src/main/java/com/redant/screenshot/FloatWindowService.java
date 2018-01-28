@@ -5,8 +5,10 @@ import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
+import android.graphics.drawable.GradientDrawable;
 import android.media.projection.MediaProjectionManager;
 import android.os.Build;
 import android.os.Handler;
@@ -76,6 +78,16 @@ public class FloatWindowService extends Service {
         }
 
         Button button = new Button(this);
+        GradientDrawable drawable = new GradientDrawable();
+        drawable.setStroke(50, Color.BLACK);
+        drawable.setColor(Color.GRAY);
+        drawable.setAlpha(127);
+        drawable.setCornerRadius(50);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            button.setBackground(drawable);
+        } else {
+            button.setBackgroundDrawable(drawable);
+        }
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
