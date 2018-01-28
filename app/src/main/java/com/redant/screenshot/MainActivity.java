@@ -11,7 +11,9 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static int OVERLAY_PERMISSION_REQUEST_CODE = 1;
+    private static final String TAG = "MainActivity";
+
+    private static final int OVERLAY_PERMISSION_REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

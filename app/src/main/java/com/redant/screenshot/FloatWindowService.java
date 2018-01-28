@@ -7,8 +7,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
+import android.media.projection.MediaProjectionManager;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -66,6 +69,7 @@ public class FloatWindowService extends Service {
     }
 
     private Button createFloatView() {
+        Log.i(TAG, "createFloatView");
         final WindowManager windowManager = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
         if (windowManager == null) {
             return null;
@@ -75,7 +79,7 @@ public class FloatWindowService extends Service {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                performHome();
+                performScreenShot();
             }
         });
         button.setOnLongClickListener(new View.OnLongClickListener() {
@@ -107,7 +111,7 @@ public class FloatWindowService extends Service {
                     }
 
                     case MotionEvent.ACTION_UP:
-                        v.performClick();
+//                        v.performClick();
 
                         mXTouchBeginInView = 0;
                         mYTouchBeginInView = 0;
@@ -181,6 +185,7 @@ public class FloatWindowService extends Service {
     }
 
     private void performHome() {
+        Log.i(TAG, "performHome");
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         intent.addCategory(Intent.CATEGORY_HOME);
@@ -188,6 +193,7 @@ public class FloatWindowService extends Service {
     }
 
     private void performLock() {
+        Log.i(TAG, "performLock");
         DevicePolicyManager devicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
         ComponentName admin = new ComponentName(this, LockScreenReceiver.class);
         if (devicePolicyManager != null && devicePolicyManager.isAdminActive(admin)) {
@@ -197,6 +203,30 @@ public class FloatWindowService extends Service {
             intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, admin);
             intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "Lock Screen");
             startActivity(intent);
+        }
+    }
+
+    private void performScreenShot() {
+        Log.i(TAG, "performScreenShot");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            MediaProjectionManager mediaProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+            if (mediaProjectionManager == null) {
+                Log.w(TAG, "performScreenShot error: mediaProjectionManager is null");
+                return;
+            }
+
+            mFloatButton.setVisibility(View.INVISIBLE);
+
+            Intent intent = new Intent(getBaseContext(), ScreenShotActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mFloatButton.setVisibility(View.VISIBLE);
+                }
+            }, 600);
         }
     }
 
