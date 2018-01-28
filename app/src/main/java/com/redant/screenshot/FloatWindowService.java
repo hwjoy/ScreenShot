@@ -79,10 +79,10 @@ public class FloatWindowService extends Service {
 
         Button button = new Button(this);
         GradientDrawable drawable = new GradientDrawable();
-        drawable.setStroke(50, Color.BLACK);
+        drawable.setStroke(37, Color.BLACK);
         drawable.setColor(Color.GRAY);
         drawable.setAlpha(127);
-        drawable.setCornerRadius(50);
+        drawable.setCornerRadius(37);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             button.setBackground(drawable);
         } else {
@@ -187,8 +187,8 @@ public class FloatWindowService extends Service {
         layoutParams.gravity = Gravity.LEFT | Gravity.TOP;
         layoutParams.x = 0;
         layoutParams.y = 0;
-        layoutParams.width = 200;
-        layoutParams.height = 200;
+        layoutParams.width = 150;
+        layoutParams.height = 150;
         mLayoutParams = layoutParams;
 
         windowManager.addView(button, layoutParams);
