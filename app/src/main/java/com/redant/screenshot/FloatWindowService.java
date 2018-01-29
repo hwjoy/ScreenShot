@@ -29,6 +29,9 @@ public class FloatWindowService extends Service {
 
     private float mXTouchBeginInView;
     private float mYTouchBeginInView;
+    private float mXTouchBegin;
+    private float mYTouchBegin;
+    private boolean mIsLongClickable = true;
 
     public FloatWindowService() {
     }
@@ -42,6 +45,13 @@ public class FloatWindowService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (mFloatButton != null) {
+            if (mFloatButton.getVisibility() != View.VISIBLE) {
+                mFloatButton.setVisibility(View.VISIBLE);
+            }
+        } else  {
+            mFloatButton = createFloatView();
+        }
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -97,7 +107,9 @@ public class FloatWindowService extends Service {
         button.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                performLock();
+                if (mIsLongClickable) {
+                    performLock();
+                }
                 return true;
             }
         });
@@ -110,6 +122,8 @@ public class FloatWindowService extends Service {
                     case MotionEvent.ACTION_DOWN:
                         mXTouchBeginInView = event.getX();
                         mYTouchBeginInView = event.getY();
+                        mXTouchBegin = event.getRawX();
+                        mYTouchBegin = event.getRawY();
                         break;
 
                     case MotionEvent.ACTION_MOVE: {
@@ -119,12 +133,15 @@ public class FloatWindowService extends Service {
                         mLayoutParams.x = moveX;
                         mLayoutParams.y = moveY;
                         windowManager.updateViewLayout(v, mLayoutParams);
+
+                        if (Math.abs(event.getRawX() - mXTouchBegin) > 5 || Math.abs(event.getRawY() - mYTouchBegin) > 5) {
+                            mIsLongClickable = false;
+                        }
+
                         break;
                     }
 
                     case MotionEvent.ACTION_UP:
-//                        v.performClick();
-
                         mXTouchBeginInView = 0;
                         mYTouchBeginInView = 0;
 
@@ -169,6 +186,12 @@ public class FloatWindowService extends Service {
                         mLayoutParams.x = moveX;
                         mLayoutParams.y = moveY;
                         windowManager.updateViewLayout(v, mLayoutParams);
+
+                        mIsLongClickable = true;
+
+                        if (Math.abs(event.getRawX() - mXTouchBegin) > 5 || Math.abs(event.getRawY() - mYTouchBegin) > 5) {
+                            return true;
+                        }
 
                         break;
                 }
@@ -232,13 +255,6 @@ public class FloatWindowService extends Service {
             Intent intent = new Intent(getBaseContext(), ScreenShotActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
-
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mFloatButton.setVisibility(View.VISIBLE);
-                }
-            }, 600);
         }
     }
 

@@ -120,6 +120,8 @@ public class ScreenShotActivity extends AppCompatActivity {
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     } finally {
+                                        Intent intent = new Intent(ScreenShotActivity.this, FloatWindowService.class);
+                                        startService(intent);
                                         finish();
                                     }
                                 }
@@ -139,6 +141,13 @@ public class ScreenShotActivity extends AppCompatActivity {
             case WRITE_EXTERNAL_STORAGE_REQUEST_CODE:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mFilePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath() + "/ScreenShots/";
+                    File dirFile = new File(mFilePath);
+                    if (!dirFile.exists()) {
+                        boolean isSuccess = dirFile.mkdirs();
+                        if (!isSuccess) {
+                            mFilePath = getExternalFilesDir("screenshot").getPath() + "/";
+                        }
+                    }
                 } else {
                     mFilePath = getExternalFilesDir("screenshot").getPath() + "/";
                 }
